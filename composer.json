@@ -1,0 +1,24 @@
+{
+	"name": "modelbrouwers/authdjango",
+	"type": "phpbb-extension",
+	"description": "Allows authentication in phpBB using Django through django-sessionprofile",
+	"homepage": "https://github.com/modelbrouwers/phpbb-ext-auth-django-sessionprofile",
+	"version": "1.0.0-dev",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Sergei Maertens",
+			"homepage": "https://regex-it.nl",
+			"role": "Lead Developer"
+		}
+	],
+	"require": {
+		"php": ">=5.4"
+	},
+	"extra": {
+		"display-name": "Auth Django",
+		"soft-require": {
+			"phpbb/phpbb": "3.1.*"
+		}
+	}
+}
