@@ -1,0 +1,34 @@
+<fieldset id="auth_django_settings">
+    <dl>
+        <dt>
+            <label for="django_db_name">Django PostgreSQL database name</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_db_name" size="40" name="config[auth_django_db_name]" value="{{ AUTH_DJANGO_DB_NAME }}" />
+        </dd>
+    </dl>
+    <dl>
+        <dt>
+            <label for="django_db_user">Django PostgreSQL database user</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_db_name" size="40" name="config[auth_django_db_user]" value="{{ AUTH_DJANGO_DB_USER }}" />
+        </dd>
+    </dl>
+    <dl>
+        <dt>
+            <label for="django_db_passwd">Django PostgreSQL database user password</label>
+        </dt>
+        <dd>
+            <input type="password" id="django_db_passwd" size="40" name="config[auth_django_db_passwd]" value="{{ AUTH_DJANGO_DB_PASSWD }}" />
+        </dd>
+    </dl>
+    <dl>
+        <dt>
+            <label for="django_cookie_name">Name of the Django sessionid cookie</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_cookie_name" size="40" name="config[auth_django_cookie_name]" value="{{ AUTH_DJANGO_COOKIE_NAME|default('sessionid') }}" />
+        </dd>
+    </dl>
+</fieldset>

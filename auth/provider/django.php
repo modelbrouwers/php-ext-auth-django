@@ -89,14 +89,116 @@ class django extends \phpbb\auth\provider\base
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
 
-        $this->settings['db_name'] = $this->config['auth_django_db_name'] ?: 'sessionid';
-        $this->settings['db_user'] = $this->config['auth_django_db_user'] ?: 'sessionid';
-        $this->settings['db_passwd'] = $this->config['auth_django_db_passwd'] ?: 'sessionid';
+        $db_name = $this->config['auth_django_db_name'];
+        $db_user = $this->config['auth_django_db_user'];
+        $db_passwd = $this->config['auth_django_db_passwd'];
         $this->settings['cookie_name'] = $this->config['auth_django_cookie_name'] ?: 'sessionid';
 
-        $this->pg_session = pg_connect("dbname={$this->settings['db_name']} user=${this->settings['db_user']} password={$this->settings['db_passwd']}");
-        if(!$this->pg_session) {
-            throw new Exception("cannot connect to Postgres db: " . pg_last_error());
+        $this->pg_session = pg_connect("dbname={$db_name} user={$db_user} password={$db_passwd}");
+        // if(!$this->pg_session) {
+        //     throw new Exception("cannot connect to Postgres db: " . pg_last_error());
+        // }
+    }
+
+    public function __destruct()
+    {
+        if ($this->pg_session) {
+            pg_close($this->pg_session);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     * - called when authentication method is enabled
+     */
+    public function init()
+    {
+        // check if the user is currently authenticated in Django to prevent lock out
+        $django_user = $this->get_django_user();
+        if ($django_user['username'] !== $this->user->data['username']) {
+            return 'Incorrect or no admin user retrieved - check the Postgres database credentials';
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     * - called when login form is submitted
+     */
+    public function login($username = null, $password = null)
+    {
+        throw new Exception('not implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     - called when new session is created
+     */
+    public function autologin()
+    {
+        throw new Exception('not implemented');
+    }
+
+    /**
+     * {@inheritdoc}
+     * - should return custom configuration options
+     */
+    public function acp()
+    {
+        // these are fields in the config for this auth provider
+        return array(
+            'auth_django_db_name',
+            'auth_django_db_user',
+            'auth_django_db_passwd',
+            'auth_django_cookie_name',
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     * - should return configuration options template
+     */
+    public function get_acp_template($new_config)
+    {
+        return array(
+            'TEMPLATE_FILE' => '@modelbrouwers_authdjango/auth_provider_django.html',
+            'TEMPLATE_VARS' => array(
+                'AUTH_DJANGO_DB_NAME'       => $new_config['auth_django_db_name'],
+                'AUTH_DJANGO_DB_USER'       => $new_config['auth_django_db_user'],
+                'AUTH_DJANGO_DB_PASSWD'     => $new_config['auth_django_db_passwd'],
+                'AUTH_DJANGO_COOKIE_NAME'   => $new_config['auth_django_cookie_name'],
+            ),
+        );
+    }
+
+    /**
+     * Retrieves the Django user based on the session cookie id from
+     * the PostgreSQL database
+     */
+    private function get_django_user()
+    {
+        $sessionid = $this->request->variable(
+            $this->settings['cookie_name'], '', false,
+            \phpbb\request\request_interface::COOKIE);
+
+        $query =
+          "SELECT u.username as username, u.email as email ".
+          "  FROM users_user u, sessionprofile_sessionprofile sp" .
+          " WHERE sp.session_key = '" . pg_escape_string($sessionid) . "' " .
+          "   AND u.id = sp.user_id
+              AND u.is_active = True";
+
+        $query_id = pg_query($this->pg_session, $query);
+
+        if (!$query_id) {
+          throw new Exception("Could not check whether user was logged in: " , pg_last_error());
+        }
+
+        $row = pg_fetch_array($query_id);
+        if ($row) {
+          return $row;
+        }
+
+        return null;
     }
 }

@@ -1,0 +1,11 @@
+services:
+    auth.provider.django:
+        class: modelbrouwers\authdjango\auth\provider\django
+        arguments:
+            - @config
+            - @request
+            - @user
+            - %core.root_path%
+            - %core.php_ext%
+        tags:
+            - { name: auth.provider }
