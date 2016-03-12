@@ -2,6 +2,7 @@ services:
     auth.provider.django:
         class: modelbrouwers\authdjango\auth\provider\django
         arguments:
+            - @dbal.conn
             - @config
             - @request
             - @user
