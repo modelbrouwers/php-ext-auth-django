@@ -221,6 +221,7 @@ class django extends \phpbb\auth\provider\base
             'auth_django_db_user',
             'auth_django_db_passwd',
             'auth_django_cookie_name',
+            'auth_django_login_url',
         );
     }
 
@@ -237,6 +238,7 @@ class django extends \phpbb\auth\provider\base
                 'AUTH_DJANGO_DB_USER'       => $new_config['auth_django_db_user'],
                 'AUTH_DJANGO_DB_PASSWD'     => $new_config['auth_django_db_passwd'],
                 'AUTH_DJANGO_COOKIE_NAME'   => $new_config['auth_django_cookie_name'],
+                'AUTH_DJANGO_LOGIN_URL'     => $new_config['auth_django_login_url'],
             ),
         );
     }
@@ -258,7 +260,12 @@ class django extends \phpbb\auth\provider\base
         if ($script !== $adm_index_script) {
             // page to be sent back to
             $phpbb_url = sprintf('%s/%s.%s', generate_board_url(), 'index', $this->php_ext);
-            redirect(sprintf('/login/?next=%s', urlencode($phpbb_url)), false, true);
+            redirect(
+                sprintf('%s=%s',
+                        $this->config['auth_django_login_url'] ?: '/login/?next',
+                        urlencode($phpbb_url)),
+                false, true
+            );
             return;
         }
         return null;

@@ -31,4 +31,11 @@
             <input type="text" id="django_cookie_name" size="40" name="config[auth_django_cookie_name]" value="{{ AUTH_DJANGO_COOKIE_NAME|default('sessionid') }}" />
         </dd>
     </dl>
+    <dl>
+        <dt>
+            <label for="django_login_url">Login url</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_login_url" size="40" name="config[auth_django_login_url]" value="{{ AUTH_DJANGO_LOGIN_URL|default('/login/?next') }}" />
+        </dd>
 </fieldset>
