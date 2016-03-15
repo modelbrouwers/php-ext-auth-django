@@ -91,6 +91,8 @@ class django extends \phpbb\auth\provider\base
         $this->phpbb_root_path = $phpbb_root_path;
         $this->php_ext = $php_ext;
 
+        $this->user->add_lang_ext('modelbrouwers/authdjango', 'common');
+
         $db_name = $this->config['auth_django_db_name'];
         $db_user = $this->config['auth_django_db_user'];
         $db_passwd = $this->config['auth_django_db_passwd'];
@@ -125,15 +127,35 @@ class django extends \phpbb\auth\provider\base
 
     /**
      * {@inheritdoc}
-     * - called when login form is submitted
+     * - called when login form is submitted (is also the case for ACP)
      */
     public function login($username = null, $password = null)
     {
         $django_user = $this->get_django_user();
 
+        if ($django_user) {
+            if ($django_user['username'] !== $username) {
+                return array(
+                    'status'    => LOGIN_ERROR_USERNAME,
+                    'error_msg' => 'LOGIN_ERROR_USERNAME',
+                    'user_row'  => array('user_id' => ANONYMOUS),
+                );
+            } else {
+                $row = $this->get_phpbb_user($django_user);
+                if ($row) {
+                    // success
+                    return array(
+                        'status'        => LOGIN_SUCCESS,
+                        'error_msg'     => false,
+                        'user_row'      => $row,
+                    );
+                }
+            }
+        }
+
         // Fallback, not logged in
         return array(
-            'status'    => LOGIN_ERROR_EXTERNAL_AUTH,
+            'status'    => LOGIN_ERROR_USERNAME,
             'error_msg' => 'LOGIN_ERROR_EXTERNAL_AUTH',
             'user_row'  => array('user_id' => ANONYMOUS),
         );
@@ -150,21 +172,8 @@ class django extends \phpbb\auth\provider\base
             return array();
         }
 
-        $username = $django_user['username']; // can be multibyte
-        $email = $django_user['email'];
-
-        set_var($username, $username, 'string', true);
-
         $username_clean = utf8_clean_string($username);
-
-        $sql = sprintf(
-            'SELECT * FROM %1$s WHERE username_clean = \'%2$s\'',
-            USERS_TABLE,
-            $this->db->sql_escape($username_clean)
-        );
-        $result = $this->db->sql_query($sql);
-        $row = $this->db->sql_fetchrow($result);
-        $this->db->sql_freeresult($result);
+        $row = $this->get_phpbb_user($django_user);
 
         // user exists
         if($row) {
@@ -183,6 +192,9 @@ class django extends \phpbb\auth\provider\base
             include($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ext);
         }
 
+        $username = $django_user['username']; // can be multibyte
+        $email = $django_user['email'];
+        set_var($username, $username, 'string', true);
         user_add($this->create_new_user($username, $email));
 
         // get the newly created user row
@@ -258,6 +270,24 @@ class django extends \phpbb\auth\provider\base
         }
 
         return null;
+    }
+
+    private function get_phpbb_user($django_user) {
+        $username = $django_user['username']; // can be multibyte
+
+        set_var($username, $username, 'string', true);
+
+        $username_clean = utf8_clean_string($username);
+
+        $sql = sprintf(
+            'SELECT * FROM %1$s WHERE username_clean = \'%2$s\'',
+            USERS_TABLE,
+            $this->db->sql_escape($username_clean)
+        );
+        $result = $this->db->sql_query($sql);
+        $row = $this->db->sql_fetchrow($result);
+        $this->db->sql_freeresult($result);
+        return $row;
     }
 
     /**
