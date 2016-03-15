@@ -242,6 +242,29 @@ class django extends \phpbb\auth\provider\base
     }
 
     /**
+    * {@inheritdoc}
+    * - should return additional template data for login form
+    */
+    public function get_login_data()
+    {
+        // if we're not trying to get access to the administration panel, redirect
+        // to the configured login page
+        $script = $this->request->variable(
+            'SCRIPT_FILENAME', '', false,
+            \phpbb\request\request_interface::SERVER
+        );
+        $adm_index_script = realpath($this->phpbb_root_path . 'adm/index.' . $this->php_ext);
+
+        if ($script !== $adm_index_script) {
+            // page to be sent back to
+            $phpbb_url = sprintf('%s/%s.%s', generate_board_url(), 'index', $this->php_ext);
+            redirect(sprintf('/login/?next=%s', urlencode($phpbb_url)), false, true);
+            return;
+        }
+        return null;
+    }
+
+    /**
      * Retrieves the Django user based on the session cookie id from
      * the PostgreSQL database
      */
