@@ -262,8 +262,9 @@ class django extends \phpbb\auth\provider\base
         $adm_index_script = realpath($this->phpbb_root_path . 'adm/index.' . $this->php_ext);
 
         if ($script !== $adm_index_script) {
-            // page to be sent back to
-            $phpbb_url = sprintf('%s/%s.%s', generate_board_url(), 'index', $this->php_ext);
+
+            $phpbb_url = htmlspecialchars_decode($this->request->server('REQUEST_URI'))
+                         ?: sprintf('%s/%s.%s', generate_board_url(), 'index', $this->php_ext);
             redirect(
                 sprintf('%s=%s',
                         $this->config['auth_django_login_url'] ?: '/login/?next',
