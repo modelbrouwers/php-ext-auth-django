@@ -172,6 +172,7 @@ class django extends \phpbb\auth\provider\base
             return array();
         }
 
+        $username = $django_user['username']; // can be multibyte
         $username_clean = utf8_clean_string($username);
         $row = $this->get_phpbb_user($django_user);
 
@@ -192,7 +193,6 @@ class django extends \phpbb\auth\provider\base
             include($this->phpbb_root_path . 'includes/functions_user.' . $this->php_ext);
         }
 
-        $username = $django_user['username']; // can be multibyte
         $email = $django_user['email'];
         set_var($username, $username, 'string', true);
         user_add($this->create_new_user($username, $email));
@@ -222,6 +222,8 @@ class django extends \phpbb\auth\provider\base
             'auth_django_db_passwd',
             'auth_django_cookie_name',
             'auth_django_login_url',
+            'auth_django_logout_url',
+            'auth_django_register_url',
         );
     }
 
@@ -239,6 +241,8 @@ class django extends \phpbb\auth\provider\base
                 'AUTH_DJANGO_DB_PASSWD'     => $new_config['auth_django_db_passwd'],
                 'AUTH_DJANGO_COOKIE_NAME'   => $new_config['auth_django_cookie_name'],
                 'AUTH_DJANGO_LOGIN_URL'     => $new_config['auth_django_login_url'],
+                'AUTH_DJANGO_LOGOUT_URL'     => $new_config['auth_django_logout_url'],
+                'AUTH_DJANGO_REGISTER_URL'     => $new_config['auth_django_register_url'],
             ),
         );
     }

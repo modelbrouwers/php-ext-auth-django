@@ -1,2 +1,22 @@
-imports:
-    - { resource: auth.yml }
+services:
+    auth.provider.django:
+        class: modelbrouwers\authdjango\auth\provider\django
+        arguments:
+            - @dbal.conn
+            - @config
+            - @request
+            - @user
+            - %core.root_path%
+            - %core.php_ext%
+        tags:
+            - { name: auth.provider }
+
+    modelbrouwers.authdjango.listener:
+        class: modelbrouwers\authdjango\event\listener
+        arguments:
+            - @config
+            - @template
+            - @user
+            - %core.php_ext%
+        tags:
+            - { name: event.listener }

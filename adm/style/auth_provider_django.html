@@ -38,4 +38,21 @@
         <dd>
             <input type="text" id="django_login_url" size="40" name="config[auth_django_login_url]" value="{{ AUTH_DJANGO_LOGIN_URL|default('/login/?next') }}" />
         </dd>
+    </dl>
+    <dl>
+        <dt>
+            <label for="django_logout_url">Logout url</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_logout_url" size="40" name="config[auth_django_logout_url]" value="{{ AUTH_DJANGO_LOGOUT_URL|default('/logout/') }}" />
+        </dd>
+    </dl>
+    <dl>
+        <dt>
+            <label for="django_register_url">Registration url</label>
+        </dt>
+        <dd>
+            <input type="text" id="django_register_url" size="40" name="config[auth_django_register_url]" value="{{ AUTH_DJANGO_REGISTER_URL|default('/register/?next') }}" />
+        </dd>
+    </dl>
 </fieldset>
