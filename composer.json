@@ -3,7 +3,7 @@
 	"type": "phpbb-extension",
 	"description": "Allows authentication in phpBB using Django through django-sessionprofile",
 	"homepage": "https://github.com/modelbrouwers/phpbb-ext-auth-django-sessionprofile",
-	"version": "1.0.0-dev",
+	"version": "1.0.0",
 	"license": "MIT",
 	"authors": [
 		{
